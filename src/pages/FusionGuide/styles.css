@@ -1,0 +1,186 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 130vh;
+    background: url("/images/fushion.jpg") no-repeat center center fixed;
+    background-size: cover;
+  }
+  
+  
+  .container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    overflow-x: auto;
+  }
+  
+  .tree {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .tree-node {
+    text-align: center;
+    position: relative;
+    display: inline-block;
+    margin: 0 12px;
+  }
+  
+  /* Card nhỏ lại */
+  .card {
+    width: 50px;
+    cursor: pointer;
+    text-align: center;
+    margin: 0 auto;
+  }
+  
+  .card-img-wrapper {
+    width: 50px;
+    height: 70px;
+    border: 2px solid #444;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .placeholder {
+    color: #bbb;
+    font-size: 7px;
+  }
+  
+  .card-name {
+    margin-top: 4px;
+    font-size: 9px;
+    color: #fff;
+  }
+  
+  /* ====== Nhánh cây ====== */
+  
+  /* Đường dọc cho tất cả node có con */
+  .tree-node.has-children::after {
+    content: "";
+    position: absolute;
+    top: 70px; /* từ đáy card */
+    left: 50%;
+    width: 2px;
+    height: 20px; /* kéo dài xuống */
+    background: #222;
+  }
+  
+  /* Row con */
+  .children-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 18px;
+    position: relative;
+  }
+  
+  /* Đường ngang nối các con */
+  .children-row::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: calc(100% - 70px);
+    height: 2px;
+    background: #222;
+  }
+  
+  /* Đường dọc xuống từng con */
+  .children-row > .tree-node::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    width: 2px;
+    height: 12px;
+    background: #222;
+  }
+  
+  /* ❌ Ẩn đường dọc ở lá (node không có con) */
+  .tree-node:not(.has-children)::after {
+    display: none;
+  }
+  
+  /* ====== Modal chi tiết ====== */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  /* Modal chi tiết dạng hình chữ nhật */
+  .card-detail-rectangle {
+    background: #1c1c1c;
+    border-radius: 12px;
+    padding: 0;
+    width: 400px;
+    max-width: 90%;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+  }
+  
+  .card-detail-rectangle-img {
+    width: 100%;
+    height: 280px;
+    overflow: hidden;
+    border-bottom: 2px solid #444;
+  }
+  
+  .card-detail-rectangle-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .card-detail-rectangle-info {
+    padding: 20px;
+    text-align: left;
+  }
+  
+  .card-detail-rectangle-info h2 {
+    margin-bottom: 12px;
+    font-size: 24px;
+    color: #ffd700;
+  }
+  
+  .card-detail-rectangle-info p {
+    margin: 8px 0;
+    font-size: 16px;
+  }
+  
+  .card-detail-rectangle-info button {
+    margin-top: 16px;
+    padding: 10px 18px;
+    background: #444;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .card-detail-rectangle-info button:hover {
+    background: #666;
+  }
+  
