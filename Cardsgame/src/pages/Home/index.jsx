@@ -1,6 +1,6 @@
 import React from "react";
-import Header from "../../../../src/components/Header.jsx";
-import Footer from "../../../../src/components/Footer.jsx";
+import Header from "../../components/Header.jsx";
+import Footer from "../../components/Footer.jsx";
 import "./styles.css";
 
 const featureCards = [
@@ -53,7 +53,8 @@ const mapCards = [
     id: "map-2",
     title: "Crystal Caverns",
     imageUrl: "/images/map2.jpg",
-    description: "Echoing tunnels and mana-rich crystals power explosive turns.",
+    description:
+      "Echoing tunnels and mana-rich crystals power explosive turns.",
     rarity: "epic",
   },
   {
