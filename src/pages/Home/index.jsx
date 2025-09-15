@@ -1,7 +1,9 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
+import "./styles.css";
 import Header from "../../components/Header.jsx";
 import Footer from "../../components/Footer.jsx";
-import "./styles.css";
 
 const featureCards = [
   {
@@ -53,8 +55,7 @@ const mapCards = [
     id: "map-2",
     title: "Crystal Caverns",
     imageUrl: "/images/map2.jpg",
-    description:
-      "Echoing tunnels and mana-rich crystals power explosive turns.",
+    description: "Echoing tunnels and mana-rich crystals power explosive turns.",
     rarity: "epic",
   },
   {
@@ -89,6 +90,7 @@ export default function Home() {
             <div className="home__cta-row">
               <button className="home__cta primary">🎮 Play Free</button>
               <button className="home__cta ghost">🃏 Choose Your Deck</button>
+              <Link to="/login" className="home__cta ghost">🔐 Đăng nhập</Link>
             </div>
           </div>
           <div className="floating-card-2">🃏</div>

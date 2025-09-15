@@ -1,17 +1,22 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Lazy load các trang
 const Home = React.lazy(() => import("./pages/Home/index.jsx"));
 const FusionGuide = React.lazy(() => import("./pages/FusionGuide/index.jsx"));
-const Cards = React.lazy(() => import("./pages/Cards.jsx"));
+const Login = React.lazy(() => import("./pages/Login/index.jsx"));
+const Register = React.lazy(() => import("./pages/Register/index.jsx"));
 const NotFound = React.lazy(() => import("./pages/NotFound.jsx"));
 
 // Loading component
 const LoadingSpinner = () => (
-  <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
-    <div className="animate-bounce text-4xl">🃏</div>
-    <p className="mt-2 text-lg">Loading...</p>
+  <div className="loading-container">
+    <div className="loading-spinner">
+      <div className="card-flip">
+        <div className="card-front">🃏</div>
+        <div className="card-back">✨</div>
+      </div>
+      <div className="loading-text">Loading...</div>
+    </div>
   </div>
 );
 
@@ -22,7 +27,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/fusion-guide" element={<FusionGuide />} />
-          <Route path="/cards" element={<Cards />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </React.Suspense>
