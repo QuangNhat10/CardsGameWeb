@@ -270,7 +270,7 @@ export default function Header() {
               </div>
             </div>
 
-            <a href="/collection" className="nav__link">
+            <a href="#collection" className="nav__link">
               Collection
             </a>
             <a href="#shop" className="nav__link">
