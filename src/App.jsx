@@ -6,7 +6,7 @@ const FusionGuide = React.lazy(() => import("./pages/FusionGuide/index.jsx"));
 const Login = React.lazy(() => import("./pages/Login/index.jsx"));
 const Register = React.lazy(() => import("./pages/Register/index.jsx"));
 const NotFound = React.lazy(() => import("./pages/NotFound.jsx"));
-
+const Profile = React.lazy(() => import("./pages/Profile.jsx"));
 // Loading component
 const LoadingSpinner = () => (
   <div className="loading-container">
@@ -29,6 +29,7 @@ export default function App() {
           <Route path="/fusion-guide" element={<FusionGuide />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </React.Suspense>
