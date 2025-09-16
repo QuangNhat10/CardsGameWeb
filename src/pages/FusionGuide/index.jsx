@@ -31,28 +31,6 @@ const treeData = [
                 image: "/images/card4.jpg",
                 stats: { dame: 45, defense: 25, type: "Phép" },
               },
-              {
-                name: "A1-3",
-                image: null,
-                stats: { dame: 20, defense: 15, type: "Hỗ Trợ" },
-              },
-            ],
-          },
-          {
-            name: "A2",
-            image: null,
-            stats: { dame: 40, defense: 30, type: "Vật Lý" },
-            children: [
-              {
-                name: "A2-1",
-                image: "/images/card5.jpg",
-                stats: { dame: 35, defense: 18, type: "Vật Lý" },
-              },
-              {
-                name: "A2-2",
-                image: null,
-                stats: { dame: 25, defense: 12, type: "Phép" },
-              },
             ],
           },
         ],
@@ -66,16 +44,18 @@ const treeData = [
             name: "B1",
             image: "/images/card6.jpg",
             stats: { dame: 50, defense: 40, type: "Vật Lý" },
-          },
-          {
-            name: "B2",
-            image: null,
-            stats: { dame: 28, defense: 22, type: "Phép" },
-          },
-          {
-            name: "B3",
-            image: "/images/card7.jpg",
-            stats: { dame: 33, defense: 17, type: "Hỗ Trợ" },
+            children: [
+              {
+                name: "B1-1",
+                image: null,
+                stats: { dame: 28, defense: 22, type: "Phép" },
+              },
+              {
+                name: "B1-2",
+                image: null,
+                stats: { dame: 20, defense: 15, type: "Hỗ Trợ" },
+              },
+            ],
           },
         ],
       },
@@ -118,11 +98,6 @@ const treeData = [
             image: "/images/card10.jpg",
             stats: { dame: 27, defense: 14, type: "Phép" },
           },
-          {
-            name: "D3",
-            image: null,
-            stats: { dame: 21, defense: 9, type: "Hỗ Trợ" },
-          },
         ],
       },
     ],
@@ -134,7 +109,7 @@ function TreeNode({ node, onSelect }) {
 
   return (
     <div className={`tree-node ${hasChildren ? "has-children" : ""}`}>
-      <div className="card" onClick={() => onSelect(node)}>
+<div className="card" onClick={() => onSelect(node)}>
         <div className="card-img-wrapper">
           {node.image ? (
             <img src={node.image} alt={node.name} className="card-img" />
@@ -164,7 +139,6 @@ export default function Index() {
       <Header />
       <div className="container">
         <div className="tree">
-          {/* Render nhiều root song song */}
           {treeData.map((root, idx) => (
             <TreeNode key={idx} node={root} onSelect={setSelectedCard} />
           ))}
