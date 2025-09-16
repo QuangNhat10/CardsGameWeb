@@ -7,6 +7,7 @@ const Login = React.lazy(() => import("./pages/Login/index.jsx"));
 const Register = React.lazy(() => import("./pages/Register/index.jsx"));
 const NotFound = React.lazy(() => import("./pages/NotFound.jsx"));
 const Collection = React.lazy(() => import("./pages/Collection/index.jsx"));
+const Profile = React.lazy(() => import("./pages/Profile.jsx"));
 
 // Loading component
 const LoadingSpinner = () => (
