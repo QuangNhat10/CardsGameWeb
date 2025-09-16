@@ -1,0 +1,194 @@
+/* Collection page custom styles */
+
+.collection-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.collection-controls > div {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  background: linear-gradient(90deg, #232526 0%, #414345 100%);
+  border: 2px solid #555;
+  padding: 16px 40px;
+  border-radius: 20px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  transition: box-shadow 0.2s, border 0.2s;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+.collection-controls > div:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+  border: 2px solid #888;
+}
+
+.collection-controls-modal {
+  background: #232526;
+  padding: 28px 32px 20px 32px;
+  border-radius: 18px;
+  min-width: 260px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.25);
+  color: #fff;
+  z-index: 201;
+  max-width: 90vw;
+}
+.collection-controls-modal label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #eee;
+}
+.collection-controls-modal input[type="checkbox"] {
+  accent-color: #ffb300;
+  margin-right: 8px;
+}
+.collection-controls-modal input[type="radio"] {
+  accent-color: #2196f3;
+  margin-right: 8px;
+}
+.collection-controls-modal .modal-close-btn {
+  margin-top: 14px;
+  background: #444;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.collection-controls-modal .modal-close-btn:hover {
+  background: #666;
+}
+
+.collection-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 40px; /* khoảng cách với footer */
+  min-height: 220px; /* giữ khoảng cách khi thu nhỏ trang */
+  justify-content: center;
+}
+.collection-card {
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s;
+  border: 2px solid #b0b0b0; /* viền xám nhẹ */
+  border-radius: 14px; /* bo góc */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 8px;
+  background: #232526;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.collection-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  z-index: 2;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+  border-color: #888;
+}
+.collection-card-level {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: #222;
+  color: #fff;
+  padding: 2px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.collection-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.50);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.collection-modal-content {
+  background: #232526;
+  padding: 32px 28px 24px 28px;
+  border-radius: 18px;
+  min-width: 350px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.25);
+  color: #fff;
+}
+.collection-modal-info {
+  margin-top: 18px;
+  font-size: 16px;
+}
+.collection-modal-close {
+  margin-top: 18px;
+  background: #444;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.collection-modal-close:hover {
+  background: #666;
+}
+
+.collection-sort-modal {
+  background: #2d3136; /* sáng hơn background trang */
+  border-radius: 14px;
+  min-width: 180px;
+  max-width: 90vw;
+  color: #fff;
+  box-shadow: 0 4px 50px rgb(0, 0, 0); /* bóng mờ vừa phải, dễ thấy */
+  padding: 16px 18px 12px 18px;
+  z-index: 201;
+}
+
+.collection-sort-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.50); /* độ mờ 5% */
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collection-sort-btn {
+  background: #222;
+  padding: 2px 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 16px; /* nhỏ hơn rõ rệt so với title, vẫn dễ nhìn */
+  font-weight: bold;
+  color: #fff;
+  border: none;
+  outline: none;
+  transition: background 50s, box-shadow 0.2s;
+}
+.collection-sort-btn:hover {
+  background: #444;
+  box-shadow: 0 2px 5px rgba(65, 64, 64, 0.18);
+}
