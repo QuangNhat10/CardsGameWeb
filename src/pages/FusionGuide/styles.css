@@ -15,6 +15,28 @@
   overflow-x: auto;
 }
 
+/* Controls */
+.controls {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.controls button {
+  padding: 8px 14px;
+  background: #222;
+  color: #fff;
+  border: 1px solid #666;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 0 6px;
+}
+
+.controls button:hover {
+  background: #444;
+  box-shadow: 0 0 8px #ffd700;
+}
+
 /* Lật ngược toàn bộ cây */
 .tree {
   display: flex;
@@ -39,13 +61,19 @@
   cursor: pointer;
   text-align: center;
   margin: 0 auto;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: rotate(180deg) scale(1.1);
+  box-shadow: 0 0 12px #ffd700;
 }
 
 .card-img-wrapper {
   width: 50px;
   height: 70px;
   border: 2px solid #444;
-  border-radius: 6px;
+  border-radius: 10px;
   overflow: hidden;
   background: #222;
   display: flex;
@@ -137,4 +165,21 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+}
+
+/* modal fusion */
+.fusion-modal {
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 12px;
+  color: #fff;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fusion-modal select {
+  padding: 6px;
+  border-radius: 6px;
 }
