@@ -1,379 +1,278 @@
-import React, { useState, useEffect } from "react";
-import "./styles.css";
+import React, { useState, useCallback } from "react";
+import ReactFlow, {
+  Background,
+  Controls,
+  MiniMap,
+  useNodesState,
+  useEdgesState,
+  Handle,
+  Position,
+} from "reactflow";
+import "reactflow/dist/style.css";
+import "./styles.css"; // CSS tách riêng
+import Header from "../../components/Header"; // hoặc Navbar của bạn
 
-import Header from "../../components/Header.jsx";
-import Footer from "../../components/Footer.jsx";
-import MagicCard from "../../components/MagicCards.jsx";
+const cardImg =
+  "https://upload.wikimedia.org/wikipedia/commons/3/3f/Placeholder_view_vector.svg";
 
-const initialTree = [
+const initialNodes = [
   {
-    name: "Thẻ Gốc 1",
-    image: "/images/card1.jpg",
-    stats: { dame: 90, defense: 70, type: "Vật Lý" },
-    children: [],
+    id: "1",
+    type: "cardNode",
+    position: { x: 100, y: 100 },
+    data: {
+      label: "A1",
+      img: cardImg,
+      description: "A1 is a legendary warrior card.",
+      power: 90,
+      rarity: "Legendary",
+    },
   },
   {
-    name: "Thẻ Gốc 2",
-    image: "/images/card7.jpg",
-    stats: { dame: 65, defense: 55, type: "Phép" },
-    children: [],
+    id: "2",
+    type: "cardNode",
+    position: { x: 400, y: 100 },
+    data: {
+      label: "A2",
+      img: cardImg,
+      description: "A2 is a defensive guardian card.",
+      power: 70,
+      rarity: "Epic",
+    },
   },
 ];
 
-// =================== TreeNode Component ===================
-function TreeNode({ node, onSelect }) {
-  const hasChildren = node.children && node.children.length > 0;
+const initialEdges = [];
+
+function CardNode({ data, selected }) {
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <div className={`tree-node ${hasChildren ? "has-children" : ""}`}>
-      <div className="card" onClick={() => onSelect(node)}>
-        <div className="card-img-wrapper">
-          {node.image ? (
-            <img src={node.image} alt={node.name} className="card-img" />
-          ) : (
-            <div className="card-img placeholder">No Img</div>
-          )}
-        </div>
-        <span className="card-name">{node.name}</span>
-      </div>
-
-      {hasChildren && (
-        <div className="children-row">
-          {node.children.map((child, i) => (
-            <TreeNode key={i} node={child} onSelect={onSelect} />
-          ))}
+    <div
+      style={{
+        width: 80,
+        height: 120,
+        background: selected ? "#ffe082" : "#222",
+        border: selected ? "3px solid #ffb300" : "2px solid #444",
+        borderRadius: 10,
+        boxShadow: "0 2px 8px #0008",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#fff",
+        fontWeight: "bold",
+        cursor: "pointer",
+        position: "relative",
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <Handle
+        type="target"
+        position={Position.Top}
+        style={{
+          background: "#fff",
+          width: 10,
+          height: 10,
+          borderRadius: "50%",
+          top: -5,
+          left: 35,
+          border: "2px solid #3949ab",
+        }}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        style={{
+          background: "#fff",
+          width: 10,
+          height: 10,
+          borderRadius: "50%",
+          bottom: -5,
+          left: 35,
+          border: "2px solid #ffb300",
+        }}
+      />
+      <img
+        src={data.img}
+        alt={data.label}
+        style={{
+          width: 60,
+          height: 60,
+          borderRadius: 6,
+          marginBottom: 8,
+          background: "#fff",
+        }}
+      />
+      <div>{data.label}</div>
+      {hovered && (
+        <div className="card-tooltip-fadein">
+          <div>
+            <strong>Name:</strong> {data.label}
+          </div>
+          <div>
+            <strong>Description:</strong> {data.description || "No description"}
+          </div>
+          <div>
+            <strong>Power:</strong> {data.power ?? "?"}
+          </div>
+          <div>
+            <strong>Rarity:</strong> {data.rarity || "Unknown"}
+          </div>
         </div>
       )}
     </div>
   );
 }
+const nodeTypes = { cardNode: CardNode };
 
-// =================== Helpers ===================
-function flattenCards(nodes) {
-  let result = [];
-  for (let node of nodes) {
-    result.push(node);
-    if (node.children) {
-      result = result.concat(flattenCards(node.children));
-    }
-  }
-  return result;
-}
+export default function Reviews() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [selectedNodes, setSelectedNodes] = useState([]);
+  const [newCardLabel, setNewCardLabel] = useState("");
 
-function deleteCardFromTree(nodes, cardName) {
-  let result = [];
-  for (let node of nodes) {
-    if (node.name === cardName) {
-      if (node.children && node.children.length > 0) {
-        result = result.concat(deleteCardFromTree(node.children, cardName));
+  // click chọn node (tối đa 2 để ghép)
+  const onNodeClick = useCallback((event, node) => {
+    setSelectedNodes((prev) => {
+      if (prev.includes(node.id)) {
+        return prev.filter((id) => id !== node.id);
       }
-    } else {
-      let newNode = { ...node };
-      if (newNode.children) {
-        newNode.children = deleteCardFromTree(newNode.children, cardName);
+      if (prev.length < 2) {
+        return [...prev, node.id];
       }
-      result.push(newNode);
-    }
-  }
-  return result;
-}
-
-// =================== Main Component ===================
-export default function Index() {
-  // lấy dữ liệu từ localStorage, nếu chưa có thì dùng initialTree
-  const [treeData, setTreeData] = useState(() => {
-    const saved = localStorage.getItem("treeData");
-    return saved ? JSON.parse(saved) : initialTree;
-  });
-
-  const [selectedCard, setSelectedCard] = useState(null);
-
-  // modal thêm card
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newCard, setNewCard] = useState({
-    name: "",
-    image: "",
-    dame: 40,
-    defense: 30,
-    type: "Vật Lý",
-    parent: "root1",
-  });
-
-  // modal ghép card
-  const [showFusionModal, setShowFusionModal] = useState(false);
-  const [fusion1, setFusion1] = useState("");
-  const [fusion2, setFusion2] = useState("");
-  const [fusionError, setFusionError] = useState(""); // thêm state lỗi
-
-  // modal xoá card
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  const allCards = flattenCards(treeData);
-
-  // lưu vào localStorage mỗi khi treeData thay đổi
-  useEffect(() => {
-    localStorage.setItem("treeData", JSON.stringify(treeData));
-  }, [treeData]);
-
-  // thêm card mới vào cây
-  const handleAddCard = () => {
-    const cardObj = {
-      name: newCard.name || "Card Mới",
-      image: newCard.image || null,
-      stats: {
-        dame: parseInt(newCard.dame),
-        defense: parseInt(newCard.defense),
-        type: newCard.type,
-      },
-      children: [],
-    };
-
-    let newTree = [...treeData];
-    if (newCard.parent === "root1") {
-      newTree[0].children.push(cardObj);
-    } else if (newCard.parent === "root2") {
-      newTree[1].children.push(cardObj);
-    } else {
-      newTree.push(cardObj); // tạo thẻ gốc mới
-    }
-
-    setTreeData(newTree);
-    setShowAddModal(false);
-    setNewCard({
-      name: "",
-      image: "",
-      dame: 40,
-      defense: 30,
-      type: "Vật Lý",
-      parent: "root1",
+      return prev;
     });
-  };
+  }, []);
 
-  // xử lý ghép card
-  const handleFusion = () => {
-    if (!fusion1 || !fusion2) {
-      setFusionError("❌ Vui lòng chọn đủ 2 thẻ!");
-      return;
-    }
-    if (fusion1 === fusion2) {
-      setFusionError("⚠️ Không thể ghép cùng 1 thẻ!");
-      return;
-    }
+  // Thêm card mới
+  const handleAddCard = () => {
+    if (!newCardLabel.trim()) return;
+    const newId = (nodes.length + 1).toString();
+    const newX = 50 + Math.random() * 500;
+    const newY = 50 + Math.random() * 300;
 
-    const card1 = allCards.find((c) => c.name === fusion1);
-    const card2 = allCards.find((c) => c.name === fusion2);
-
-    if (!card1 || !card2) {
-      setFusionError("❌ Thẻ không tồn tại!");
-      return;
-    }
-
-    // ghép thành công
-    const newFusion = {
-      name: `Fusion(${card1.name}+${card2.name})`,
-      image: null,
-      stats: {
-        dame: Math.floor((card1.stats.dame + card2.stats.dame) / 2) + 20,
-        defense:
-          Math.floor((card1.stats.defense + card2.stats.defense) / 2) + 10,
-        type: "Fusion",
+    setNodes((nds) => [
+      ...nds,
+      {
+        id: newId,
+        type: "cardNode",
+        position: { x: newX, y: newY },
+        data: {
+          label: newCardLabel,
+          img: cardImg,
+          description: `${newCardLabel} is a newly created card.`,
+          power: Math.floor(Math.random() * 100),
+          rarity: "Common",
+        },
       },
-      children: [card1, card2],
-    };
-
-    const newTree = [...treeData];
-    newTree[0].children.push(newFusion);
-    setTreeData(newTree);
-
-    // reset state
-    setFusion1("");
-    setFusion2("");
-    setFusionError(""); // xoá lỗi nếu có
-    setShowFusionModal(false);
+    ]);
+    setNewCardLabel("");
   };
 
-  // xử lý xoá card
-  const handleDeleteCard = (cardName) => {
-    const newTree = deleteCardFromTree(treeData, cardName);
-    setTreeData(newTree);
-    setShowDeleteModal(false);
-    setSelectedCard(null);
+  // Ghép 2 card lại thành card mới
+  const handleMergeCard = () => {
+    if (selectedNodes.length !== 2 || !newCardLabel.trim()) return;
+
+    const nodeA = nodes.find((n) => n.id === selectedNodes[0]);
+    const nodeB = nodes.find((n) => n.id === selectedNodes[1]);
+
+    const newX = (nodeA.position.x + nodeB.position.x) / 2;
+    const newY = Math.max(nodeA.position.y, nodeB.position.y) + 150;
+
+    const newId = (nodes.length + 1).toString();
+
+    setNodes((nds) => [
+      ...nds,
+      {
+        id: newId,
+        type: "cardNode",
+        position: { x: newX, y: newY },
+        data: {
+          label: newCardLabel,
+          img: cardImg,
+          description: `Merged from ${nodeA.data.label} and ${nodeB.data.label}.`,
+          power: Math.floor(
+            ((nodeA.data.power ?? 50) + (nodeB.data.power ?? 50)) / 2
+          ),
+          rarity: "Fusion",
+        },
+      },
+    ]);
+
+    setEdges((eds) => [
+      ...eds,
+      {
+        id: `e${selectedNodes[0]}-${newId}`,
+        source: selectedNodes[0],
+        target: newId,
+        type: "step",
+        style: { stroke: "#fff", strokeWidth: 3 },
+      },
+      {
+        id: `e${selectedNodes[1]}-${newId}`,
+        source: selectedNodes[1],
+        target: newId,
+        type: "step",
+        style: { stroke: "#fff", strokeWidth: 3 },
+      },
+    ]);
+
+    setSelectedNodes([]);
+    setNewCardLabel("");
   };
+
+  // highlight node đang chọn
+  const customNodes = nodes.map((node) => ({
+    ...node,
+    selected: selectedNodes.includes(node.id),
+  }));
 
   return (
-    <div className="page">
+    <div className="reviews-page">
       <Header />
-      <div className="container">
-        <div className="controls">
-          <button onClick={() => setShowAddModal(true)}>➕ Thêm Card</button>
-          <button onClick={() => setShowFusionModal(true)}>⚡ Ghép Card</button>
-          <button onClick={() => setShowDeleteModal(true)}>🗑️ Xóa Card</button>
-        </div>
-        <div className="tree">
-          {treeData.map((root, idx) => (
-            <TreeNode key={idx} node={root} onSelect={setSelectedCard} />
-          ))}
-        </div>
+
+      {/* Toolbar */}
+      <div className="toolbar">
+        <input
+type="text"
+          placeholder="Tên Card mới"
+          value={newCardLabel}
+          onChange={(e) => setNewCardLabel(e.target.value)}
+        />
+        <button onClick={handleAddCard} className="btn-add">
+          + Thêm Card
+        </button>
+        <button
+          onClick={handleMergeCard}
+          disabled={selectedNodes.length !== 2 || !newCardLabel.trim()}
+          className={`btn-merge ${
+            selectedNodes.length === 2 && newCardLabel.trim()
+              ? "btn-merge-active"
+              : "btn-merge-disabled"
+          }`}
+        >
+          Ghép Card
+        </button>
       </div>
 
-      {/* modal chi tiết card */}
-      {selectedCard && (
-        <div className="modal" onClick={() => setSelectedCard(null)}>
-          <div
-            className="card-detail-rectangle"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <MagicCard
-              name={selectedCard.name}
-              imageUrl={selectedCard.image || "https://placehold.co/300x200"}
-              typeLine={
-                selectedCard.stats ? `Loại: ${selectedCard.stats.type}` : ""
-              }
-              stats={{
-                atk: selectedCard.stats?.dame || 0,
-                def: selectedCard.stats?.defense || 0,
-              }}
-              abilities={
-                selectedCard.stats
-                  ? [
-                      `Dame: ${selectedCard.stats.dame}`,
-                      `Chống chịu: ${selectedCard.stats.defense}`,
-                      `Loại: ${selectedCard.stats.type}`,
-                    ]
-                  : []
-              }
-              variant={
-                selectedCard.stats?.type === "Phép"
-                  ? "spell"
-                  : selectedCard.stats?.type === "Hỗ Trợ"
-                  ? "trap"
-                  : "monster"
-              }
-            />
-            <button
-              style={{ marginTop: 12 }}
-              onClick={() => setSelectedCard(null)}
-            >
-              Đóng
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* modal thêm card */}
-      {showAddModal && (
-        <div className="modal" onClick={() => setShowAddModal(false)}>
-          <div className="fusion-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>➕ Thêm Card Mới</h3>
-            <input
-              type="text"
-              placeholder="Tên card"
-              value={newCard.name}
-              onChange={(e) => setNewCard({ ...newCard, name: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Link ảnh"
-              value={newCard.image}
-              onChange={(e) =>
-                setNewCard({ ...newCard, image: e.target.value })
-              }
-            />
-            <input
-              type="number"
-              placeholder="Dame"
-              value={newCard.dame}
-              onChange={(e) => setNewCard({ ...newCard, dame: e.target.value })}
-            />
-            <input
-              type="number"
-              placeholder="Defense"
-              value={newCard.defense}
-              onChange={(e) =>
-                setNewCard({ ...newCard, defense: e.target.value })
-              }
-            />
-            <select
-              value={newCard.type}
-              onChange={(e) => setNewCard({ ...newCard, type: e.target.value })}
-            >
-              <option value="Vật Lý">Vật Lý</option>
-              <option value="Phép">Phép</option>
-              <option value="Hỗ Trợ">Hỗ Trợ</option>
-            </select>
-            <select
-              value={newCard.parent}
-              onChange={(e) =>
-                setNewCard({ ...newCard, parent: e.target.value })
-              }
-            >
-              <option value="root1">Thêm vào Thẻ Gốc 1</option>
-              <option value="root2">Thêm vào Thẻ Gốc 2</option>
-              <option value="new">Tạo thẻ gốc mới</option>
-            </select>
-            <button onClick={handleAddCard}>Thêm</button>
-          </div>
-        </div>
-      )}
-
-      {/* modal fusion */}
-      {showFusionModal && (
-        <div className="modal" onClick={() => setShowFusionModal(false)}>
-          <div className="fusion-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>⚡ Ghép 2 Card</h3>
-            <select
-              value={fusion1}
-              onChange={(e) => setFusion1(e.target.value)}
-            >
-              <option value="">-- Chọn card 1 --</option>
-              {allCards.map((c, i) => (
-                <option key={i} value={c.name}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            <select
-              value={fusion2}
-              onChange={(e) => setFusion2(e.target.value)}
-            >
-              <option value="">-- Chọn card 2 --</option>
-              {allCards.map((c, i) => (
-                <option key={i} value={c.name}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-
-            {fusionError && (
-              <p style={{ color: "red", marginTop: 8 }}>{fusionError}</p>
-            )}
-
-            <button onClick={handleFusion}>Ghép lại</button>
-          </div>
-        </div>
-      )}
-
-      {/* modal delete */}
-      {showDeleteModal && (
-        <div className="modal" onClick={() => setShowDeleteModal(false)}>
-          <div className="fusion-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>🗑️ Xóa Card</h3>
-            <select
-              onChange={(e) => handleDeleteCard(e.target.value)}
-              defaultValue=""
-            >
-              <option value="">-- Chọn card cần xóa --</option>
-              {allCards.map((c, i) => (
-                <option key={i} value={c.name}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
-
-      <Footer />
+      {/* Flow Area */}
+      <div className="flow-container">
+        <ReactFlow
+          nodes={customNodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onNodeClick={onNodeClick}
+          nodeTypes={nodeTypes}
+          fitView
+        >
+          <Background color="#aaa" gap={32} />
+          <MiniMap />
+          <Controls />
+        </ReactFlow>
+      </div>
     </div>
   );
 }
