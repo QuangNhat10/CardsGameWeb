@@ -1,185 +1,92 @@
-.page {
+.reviews-page {
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 130vh;
   background: url("/images/fushion.jpg") no-repeat center center fixed;
   background-size: cover;
 }
 
-.container {
-  flex: 1;
+/* Toolbar dưới header */
+.toolbar {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 20px;
-  overflow-x: auto;
+  gap: 12px;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 20;
 }
 
-/* Controls */
-.controls {
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.controls button {
-  padding: 8px 14px;
-  background: #222;
-  color: #fff;
-  border: 1px solid #666;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  margin: 0 6px;
-}
-
-.controls button:hover {
-  background: #444;
-  box-shadow: 0 0 8px #ffd700;
-}
-
-/* Lật ngược toàn bộ cây */
-.tree {
-  display: flex;
-  justify-content: center;
-  transform: rotate(180deg);
-}
-
-/* Lật lại thẻ cho đúng chiều */
-.tree .card {
-  transform: rotate(180deg);
-}
-
-.tree-node {
-  text-align: center;
-  position: relative;
-  display: inline-block;
-  margin: 0 12px;
-}
-
-.card {
-  width: 50px;
-  cursor: pointer;
-  text-align: center;
-  margin: 0 auto;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.card:hover {
-  transform: rotate(180deg) scale(1.1);
-  box-shadow: 0 0 12px #ffd700;
-}
-
-.card-img-wrapper {
-  width: 50px;
-  height: 70px;
-  border: 2px solid #444;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #222;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.placeholder {
-  color: #bbb;
-  font-size: 7px;
-}
-
-.card-name {
-  margin-top: 4px;
-  font-size: 9px;
-  color: #fff;
-}
-
-/* ====== Nhánh cây ====== */
-.tree-node.has-children::after {
-  content: "";
-  position: absolute;
-  top: 70px;
-  left: 50%;
-  width: 2px;
-  height: 20px;
-  background: #222;
-}
-
-.children-row {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 18px;
-  position: relative;
-}
-
-.children-row::before {
-  content: "";
-  position: absolute;
-  top: -12px;
-  left: 0;
-  right: 0;
-  margin: auto;
-  width: calc(100% - 70px);
-  height: 2px;
-  background: #222;
-}
-
-.children-row>.tree-node::before {
-  content: "";
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  width: 2px;
-  height: 12px;
-  background: #222;
-}
-
-.tree-node:not(.has-children)::after {
-  display: none;
-}
-
-/* ====== Modal chi tiết ====== */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.card-detail-rectangle {
-  background: #1c1c1c;
-  border-radius: 12px;
-  padding: 0;
-  width: 400px;
-  max-width: 90%;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
-}
-
-/* modal fusion */
-.fusion-modal {
-  background: #1c1c1c;
-  padding: 20px;
-  border-radius: 12px;
-  color: #fff;
-  width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.fusion-modal select {
-  padding: 6px;
+.toolbar input {
+  padding: 6px 10px;
   border-radius: 6px;
+  border: 1px solid #888;
+  font-size: 16px;
+  color: black;
+}
+
+.btn-add,
+.btn-merge {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-add {
+  background: #3949ab;
+  color: #fff;
+}
+
+.btn-merge {
+  background: #aaa;
+  color: #222;
+}
+
+.btn-merge-active {
+  background: #ffb300;
+  cursor: pointer;
+}
+
+.btn-merge-disabled {
+  cursor: not-allowed;
+}
+
+/* Flow area chiếm hết phần còn lại */
+.flow-container {
+  flex: 1;
+  height: calc(100vh - 120px);
+  /* Header + Toolbar */
+}
+
+/* Tooltip card */
+.card-tooltip-fadein {
+  position: absolute;
+  top: -100px;
+  left: 100%;
+  margin-left: 12px;
+  background: #333;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0008;
+  white-space: normal;
+  z-index: 100;
+  pointer-events: none;
+  min-width: 180px;
+  font-weight: normal;
+  animation: fadein 0.3s ease-in-out;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
