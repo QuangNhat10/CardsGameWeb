@@ -1,5 +1,7 @@
 /* Collection page custom styles */
-
+#root {
+  background: #000;
+}
 .collection-controls {
   display: flex;
   justify-content: center;
@@ -80,6 +82,7 @@
   padding: 8px;
   background: #232526;
   transition: box-shadow 0.2s, border-color 0.2s;
+  color: #fff;
 }
 .collection-card:hover {
   transform: translateY(-6px) scale(1.03);

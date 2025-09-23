@@ -5,8 +5,12 @@ const Home = React.lazy(() => import("./pages/Home/index.jsx"));
 const FusionGuide = React.lazy(() => import("./pages/FusionGuide/index.jsx"));
 const Login = React.lazy(() => import("./pages/Login/index.jsx"));
 const Register = React.lazy(() => import("./pages/Register/index.jsx"));
+const ShopGamePage = React.lazy(() => import("./pages/ShopGame/index.jsx"));
 const NotFound = React.lazy(() => import("./pages/NotFound.jsx"));
-
+const Collection = React.lazy(() => import("./pages/Collection/index.jsx"));
+const ContactPage = React.lazy(() => import("./pages/ContactPage/index.jsx"));
+const APITest = React.lazy(() => import("./pages/APITest/index.jsx"));
+const VerifyOTP = React.lazy(() => import("./pages/VerifyOTP/index.jsx"));
 // Loading component
 const LoadingSpinner = () => (
   <div className="loading-container">
@@ -27,8 +31,13 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/fusion-guide" element={<FusionGuide />} />
+          <Route path="/shop-game" element={<ShopGamePage />} />
+          <Route path="/collection" element={<Collection />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/api-test" element={<APITest />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </React.Suspense>

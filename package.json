@@ -7,14 +7,20 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-d3-tree": "^3.6.6",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.2",
-    "reactflow": "^11.11.4"
+    "reactflow": "^11.11.4",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
@@ -30,5 +36,18 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13",
     "vite": "^7.1.2"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuangNhat10/CardsGameWeb.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/QuangNhat10/CardsGameWeb/issues"
+  },
+  "homepage": "https://github.com/QuangNhat10/CardsGameWeb#readme"
 }

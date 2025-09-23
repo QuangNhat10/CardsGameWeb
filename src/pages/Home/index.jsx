@@ -55,7 +55,8 @@ const mapCards = [
     id: "map-2",
     title: "Crystal Caverns",
     imageUrl: "/images/map2.jpg",
-    description: "Echoing tunnels and mana-rich crystals power explosive turns.",
+    description:
+      "Echoing tunnels and mana-rich crystals power explosive turns.",
     rarity: "epic",
   },
   {
@@ -88,9 +89,11 @@ export default function Home() {
               fast-paced trading card game. Download free and enter the Arena.
             </p>
             <div className="home__cta-row">
-              <button className="home__cta primary">🎮 Play Free</button>
+              <button className="home__cta primary">🎮 Download</button>
               <button className="home__cta ghost">🃏 Choose Your Deck</button>
-              <Link to="/login" className="home__cta ghost">🔐 Login</Link>
+              <Link to="/login" className="home__cta ghost">
+                🔐 Login
+              </Link>
             </div>
           </div>
           <div className="floating-card-2">🃏</div>

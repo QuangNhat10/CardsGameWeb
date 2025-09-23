@@ -15,7 +15,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.55) 70%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.55) 70%);
   pointer-events: none;
 }
 
@@ -62,7 +62,7 @@
   color: #1f2937;
   border-radius: 8px;
   border: 2px solid #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .35), inset 0 0 0 2px rgba(255, 255, 255, .35);
 }
 
 .auth-name {
@@ -71,13 +71,34 @@
   color: #fef3c7;
 }
 
-.auth-brand--outside { margin-bottom: 14px; width: min(440px, 92vw); font-size: 2rem; }
-.auth-logo--xl { width:1.1em; height:1.5em; transform-style:preserve-3d; animation: card-spin 6s linear infinite; border-radius: 10px; }
-.auth-name--xl { font-size: inherit; font-weight: 900; letter-spacing: 0.8px; }
+.auth-brand--outside {
+  margin-bottom: 14px;
+  width: min(440px, 92vw);
+  font-size: 2rem;
+}
+
+.auth-logo--xl {
+  width: 1.1em;
+  height: 1.5em;
+  transform-style: preserve-3d;
+  animation: card-spin 6s linear infinite;
+  border-radius: 10px;
+}
+
+.auth-name--xl {
+  font-size: inherit;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+}
 
 @keyframes card-spin {
-  from { transform: rotateY(0deg); }
-  to { transform: rotateY(360deg); }
+  from {
+    transform: rotateY(0deg);
+  }
+
+  to {
+    transform: rotateY(360deg);
+  }
 }
 
 .auth-field {
@@ -143,7 +164,12 @@
 }
 
 @media (max-width: 480px) {
-  .auth-card { padding: 1.25rem; width: 100%; }
-  .auth-title { font-size: 1.5rem; }
-}
+  .auth-card {
+    padding: 1.25rem;
+    width: 100%;
+  }
 
+  .auth-title {
+    font-size: 1.5rem;
+  }
+}

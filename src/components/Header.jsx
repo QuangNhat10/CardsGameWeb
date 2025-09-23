@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import "./Header.css";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -270,17 +271,17 @@ export default function Header() {
               </div>
             </div>
 
-            <a href="#collection" className="nav__link">
+            <a href="/collection" className="nav__link">
               Collection
             </a>
-            <a href="#shop" className="nav__link">
+            <Link to="/shop-game" className="nav__link">
               Shop
-            </a>
+            </Link>
             <a href="/fusion-guide" className="nav__link">
               Fusion Guide
             </a>
-            <a href="#events" className="nav__link">
-              Events
+            <a href="/contact" className="nav__link">
+              Contact
             </a>
           </nav>
 
