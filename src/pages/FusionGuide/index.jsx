@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -10,14 +10,11 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import "./styles.css"; // CSS tách riêng
-import Header from "../../components/Header";
-import { io } from "socket.io-client";
+import Header from "../../components/Header"; // hoặc Navbar của bạn
 
-// Ảnh placeholder cho card
 const cardImg =
   "https://upload.wikimedia.org/wikipedia/commons/3/3f/Placeholder_view_vector.svg";
 
-// Dữ liệu mặc định
 const initialNodes = [
   {
     id: "1",
@@ -47,7 +44,11 @@ const initialNodes = [
 
 const initialEdges = [];
 
-// ====== Component Node (Card) ======
+const STORAGE_KEYS = {
+  nodes: "fusionGuide:nodes",
+  edges: "fusionGuide:edges",
+};
+
 function CardNode({ data, selected }) {
   const [hovered, setHovered] = useState(false);
 
@@ -129,108 +130,186 @@ function CardNode({ data, selected }) {
     </div>
   );
 }
-
 const nodeTypes = { cardNode: CardNode };
 
-// ====== Main Component ======
 export default function Reviews() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [selectedNodes, setSelectedNodes] = useState([]);
+  const [newCardLabel, setNewCardLabel] = useState("");
 
+  // Load from localStorage on mount
   useEffect(() => {
-    const socket = io("http://localhost:3001"); // đổi thành server thật của bạn
+    try {
+      const savedNodes = localStorage.getItem(STORAGE_KEYS.nodes);
+      const savedEdges = localStorage.getItem(STORAGE_KEYS.edges);
+      if (savedNodes && savedEdges) {
+        const parsedNodes = JSON.parse(savedNodes);
+        const parsedEdges = JSON.parse(savedEdges);
+        if (Array.isArray(parsedNodes) && Array.isArray(parsedEdges)) {
+          setNodes(parsedNodes);
+          setEdges(parsedEdges);
+        }
+      }
+    } catch (err) {
+      // ignore storage errors
+    }
+  }, [setNodes, setEdges]);
 
-    // 🔹 Thêm card mới
-    socket.on("addCard", () => {
-      const newId = (nodes.length + 1).toString();
-      const newX = 50 + Math.random() * 500;
-      const newY = 50 + Math.random() * 300;
-
-      setNodes((nds) => [
-        ...nds,
-        {
-          id: newId,
-          type: "cardNode",
-          position: { x: newX, y: newY },
-          data: {
-            label: `Auto-${newId}`,
-            img: cardImg,
-            description: `This is auto-generated card ${newId}.`,
-            power: Math.floor(Math.random() * 100),
-            rarity: "Common",
-          },
-        },
-      ]);
-    });
-
-    // 🔹 Ghép 2 card cuối cùng
-    socket.on("mergeCard", () => {
-      if (nodes.length < 2) return;
-
-      const [nodeA, nodeB] = nodes.slice(-2); // lấy 2 node cuối
-      const newId = (nodes.length + 1).toString();
-      const newX = (nodeA.position.x + nodeB.position.x) / 2;
-      const newY = Math.max(nodeA.position.y, nodeB.position.y) + 150;
-
-      setNodes((nds) => [
-        ...nds,
-        {
-          id: newId,
-          type: "cardNode",
-          position: { x: newX, y: newY },
-          data: {
-            label: `Fusion-${newId}`,
-            img: cardImg,
-            description: `Merged from ${nodeA.data.label} and ${nodeB.data.label}.`,
-            power: Math.floor(
-              ((nodeA.data.power ?? 50) + (nodeB.data.power ?? 50)) / 2
-            ),
-            rarity: "Fusion",
-          },
-        },
-      ]);
-
-      setEdges((eds) => [
-        ...eds,
-        {
-          id: `e${nodeA.id}-${newId}`,
-          source: nodeA.id,
-          target: newId,
-          type: "step",
-          style: { stroke: "#fff", strokeWidth: 3 },
-        },
-        {
-          id: `e${nodeB.id}-${newId}`,
-          source: nodeB.id,
-          target: newId,
-          type: "step",
-          style: { stroke: "#fff", strokeWidth: 3 },
-        },
-      ]);
-    });
-
-    // 🔹 Reset sơ đồ
-    socket.on("resetFlow", () => {
-      setNodes(initialNodes);
-      setEdges(initialEdges);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+  // Persist whenever nodes/edges change
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.nodes, JSON.stringify(nodes));
+      localStorage.setItem(STORAGE_KEYS.edges, JSON.stringify(edges));
+    } catch (err) {
+      // ignore storage errors
+    }
   }, [nodes, edges]);
+
+  const handleReset = () => {
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+    setSelectedNodes([]);
+    try {
+      localStorage.removeItem(STORAGE_KEYS.nodes);
+      localStorage.removeItem(STORAGE_KEYS.edges);
+    } catch { }
+  };
+
+  // click chọn node (tối đa 2 để ghép)
+  const onNodeClick = useCallback((event, node) => {
+    setSelectedNodes((prev) => {
+      if (prev.includes(node.id)) {
+        return prev.filter((id) => id !== node.id);
+      }
+      if (prev.length < 2) {
+        return [...prev, node.id];
+      }
+      return prev;
+    });
+  }, []);
+
+  // Thêm card mới
+  const handleAddCard = () => {
+    if (!newCardLabel.trim()) return;
+    const newId = (nodes.length + 1).toString();
+    const newX = 50 + Math.random() * 500;
+    const newY = 50 + Math.random() * 300;
+
+    setNodes((nds) => [
+      ...nds,
+      {
+        id: newId,
+        type: "cardNode",
+        position: { x: newX, y: newY },
+        data: {
+          label: newCardLabel,
+          img: cardImg,
+          description: `${newCardLabel} is a newly created card.`,
+          power: Math.floor(Math.random() * 100),
+          rarity: "Common",
+        },
+      },
+    ]);
+    setNewCardLabel("");
+  };
+
+  // Ghép 2 card lại thành card mới
+  const handleMergeCard = () => {
+    if (selectedNodes.length !== 2 || !newCardLabel.trim()) return;
+
+    const nodeA = nodes.find((n) => n.id === selectedNodes[0]);
+    const nodeB = nodes.find((n) => n.id === selectedNodes[1]);
+
+    const newX = (nodeA.position.x + nodeB.position.x) / 2;
+    const newY = Math.max(nodeA.position.y, nodeB.position.y) + 150;
+
+    const newId = (nodes.length + 1).toString();
+
+    setNodes((nds) => [
+      ...nds,
+      {
+        id: newId,
+        type: "cardNode",
+        position: { x: newX, y: newY },
+        data: {
+          label: newCardLabel,
+          img: cardImg,
+          description: `Merged from ${nodeA.data.label} and ${nodeB.data.label}.`,
+          power: Math.floor(
+            ((nodeA.data.power ?? 50) + (nodeB.data.power ?? 50)) / 2
+          ),
+          rarity: "Fusion",
+        },
+      },
+    ]);
+
+    setEdges((eds) => [
+      ...eds,
+      {
+        id: `e${selectedNodes[0]}-${newId}`,
+        source: selectedNodes[0],
+        target: newId,
+        type: "step",
+        style: { stroke: "#fff", strokeWidth: 3 },
+      },
+      {
+        id: `e${selectedNodes[1]}-${newId}`,
+        source: selectedNodes[1],
+        target: newId,
+        type: "step",
+        style: { stroke: "#fff", strokeWidth: 3 },
+      },
+    ]);
+
+    setSelectedNodes([]);
+    setNewCardLabel("");
+  };
+
+  // highlight node đang chọn
+  const customNodes = nodes.map((node) => ({
+    ...node,
+    selected: selectedNodes.includes(node.id),
+  }));
 
   return (
     <div className="reviews-page">
       <Header />
 
+      {/* Toolbar */}
+      <div className="toolbar">
+        <input
+          type="text"
+          placeholder="Tên Card mới"
+          value={newCardLabel}
+          onChange={(e) => setNewCardLabel(e.target.value)}
+        />
+        <button onClick={handleAddCard} className="btn-add">
+          + Thêm Card
+        </button>
+        <button
+          onClick={handleMergeCard}
+          disabled={selectedNodes.length !== 2 || !newCardLabel.trim()}
+          className={`btn-merge ${selectedNodes.length === 2 && newCardLabel.trim()
+            ? "btn-merge-active"
+            : "btn-merge-disabled"
+            }`}
+        >
+          Ghép Card
+        </button>
+        <button onClick={handleReset} className="btn-merge">
+          Reset sơ đồ
+        </button>
+      </div>
+
       {/* Flow Area */}
       <div className="flow-container">
         <ReactFlow
-          nodes={nodes}
+          nodes={customNodes}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          onNodeClick={onNodeClick}
           nodeTypes={nodeTypes}
           fitView
         >

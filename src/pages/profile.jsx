@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { URL } from "../services/api";
 import { Link } from "react-router-dom";
 
 const mockUser = {
@@ -30,7 +31,7 @@ const sampleCards = [
     def: 18,
     skills: ["Dash Strike", "Riposte"],
     rarity: "Epic",
-    img: "https://via.placeholder.com/160?text=Blade",
+    img: "/images/cardfeature1.jpg",
     desc: "Fast melee attacker",
   },
   {
@@ -40,7 +41,7 @@ const sampleCards = [
     def: 44,
     skills: ["Shield Wall", "Taunt"],
     rarity: "Rare",
-    img: "https://via.placeholder.com/160?text=Shield",
+    img: "/images/cardfeature2.jpg",
     desc: "Bulky defender",
   },
   {
@@ -50,7 +51,7 @@ const sampleCards = [
     def: 15,
     skills: ["Arcane Bolt", "Mana Surge"],
     rarity: "Legendary",
-    img: "https://via.placeholder.com/160?text=Arcane",
+    img: "/images/cardfeature3.jpg",
     desc: "High burst magic",
   },
   {
@@ -60,7 +61,7 @@ const sampleCards = [
     def: 14,
     skills: ["Pounce", "Bleed"],
     rarity: "Uncommon",
-    img: "https://via.placeholder.com/160?text=Feral",
+    img: "/images/map1.jpg",
     desc: "Quick single-target DPS",
   },
   {
@@ -70,7 +71,7 @@ const sampleCards = [
     def: 12,
     skills: ["Flame Nova", "Ignite"],
     rarity: "Rare",
-    img: "https://via.placeholder.com/160?text=Flame",
+    img: "/images/map2.jpg",
     desc: "AoE burn",
   },
 ];
@@ -221,11 +222,11 @@ const styles = {
 function Avatar({ name, color, size = 96 }) {
   const initials = name
     ? name
-        .split(" ")
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
+      .split(" ")
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase()
     : "U";
   return (
     <div
@@ -238,6 +239,65 @@ function Avatar({ name, color, size = 96 }) {
 
 export default function Profile() {
   const [selectedCard, setSelectedCard] = useState(null);
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdMessage, setPwdMessage] = useState("");
+  const [pwd, setPwd] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+
+  const user = (() => {
+    try { return JSON.parse(localStorage.getItem("user")) || mockUser; } catch { return mockUser; }
+  })();
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (pwd.newPassword.length < 6) {
+      setPwdMessage("Mật khẩu mới phải ít nhất 6 ký tự");
+      return;
+    }
+    if (pwd.newPassword !== pwd.confirmPassword) {
+      setPwdMessage("Xác nhận mật khẩu không khớp");
+      return;
+    }
+    setPwdLoading(true);
+    setPwdMessage("");
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${URL}/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+        // Gửi đồng thời các alias trường để tương thích API (currentPassword/oldPassword/password)
+        body: JSON.stringify({
+          email: user?.email,
+          currentPassword: pwd.currentPassword,
+          oldPassword: pwd.currentPassword,
+          password: pwd.currentPassword,
+          newPassword: pwd.newPassword,
+          confirmPassword: pwd.confirmPassword || pwd.newPassword,
+        }),
+      });
+      let data;
+      try {
+        data = await res.json();
+      } catch (_) {
+        data = {};
+      }
+      if (res.ok) {
+        setPwdMessage(data.message || "Đổi mật khẩu thành công");
+        setPwd({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      } else {
+        // Hỗ trợ hiển thị lỗi phổ biến từ backend
+        const backendMsg = data.message || data.error || data.errors?.join?.(", ");
+        setPwdMessage(backendMsg || `Không thể đổi mật khẩu (mã ${res.status}).`);
+      }
+    } catch (err) {
+      setPwdMessage("Lỗi: " + err.message);
+    } finally {
+      setPwdLoading(false);
+    }
+  };
 
   return (
     <div style={styles.page}>
@@ -248,23 +308,23 @@ export default function Profile() {
       <div style={styles.container}>
         <div style={styles.profileCard}>
           <div style={styles.avatarBox}>
-            <Avatar name={mockUser.displayName} color={mockUser.avatarColor} />
+            <Avatar name={user.displayName || user.username} color={user.avatarColor || mockUser.avatarColor} />
             <div>
-              <div style={styles.name}>{mockUser.displayName}</div>
-              <div style={styles.username}>@{mockUser.username}</div>
+              <div style={styles.name}>{user.displayName || user.username}</div>
+              <div style={styles.username}>@{user.username}</div>
 
               <div style={styles.statRow}>
                 <div style={styles.statBox}>
                   <div style={{ fontSize: 12, color: "#9aa8b8" }}>Level</div>
-                  <div style={{ fontWeight: 800 }}>{mockUser.level}</div>
+                  <div style={{ fontWeight: 800 }}>{user.level || mockUser.level}</div>
                 </div>
                 <div style={styles.statBox}>
                   <div style={{ fontSize: 12, color: "#9aa8b8" }}>Rank</div>
-                  <div style={{ fontWeight: 800 }}>{mockUser.rank}</div>
+                  <div style={{ fontWeight: 800 }}>{user.rank || mockUser.rank}</div>
                 </div>
                 <div style={styles.statBox}>
                   <div style={{ fontSize: 12, color: "#9aa8b8" }}>Điểm</div>
-                  <div style={{ fontWeight: 800 }}>{mockUser.score}</div>
+                  <div style={{ fontWeight: 800 }}>{user.score || mockUser.score}</div>
                 </div>
               </div>
             </div>
@@ -281,7 +341,7 @@ export default function Profile() {
                 }}
               >
                 <div style={{ fontSize: 12, color: "#9aa8b8" }}>Email</div>
-                <div style={{ fontWeight: 700 }}>{mockUser.email}</div>
+                <div style={{ fontWeight: 700 }}>{user.email}</div>
               </div>
 
               <div
@@ -295,7 +355,7 @@ export default function Profile() {
                 <div style={{ fontSize: 12, color: "#9aa8b8" }}>
                   Số điện thoại
                 </div>
-                <div style={{ fontWeight: 700 }}>{mockUser.sdt}</div>
+                <div style={{ fontWeight: 700 }}>{user.sdt || mockUser.sdt}</div>
               </div>
 
               <div
@@ -307,7 +367,7 @@ export default function Profile() {
                 }}
               >
                 <div style={{ fontSize: 12, color: "#9aa8b8" }}>Quốc gia</div>
-                <div style={{ fontWeight: 700 }}>{mockUser.country}</div>
+                <div style={{ fontWeight: 700 }}>{user.country || mockUser.country}</div>
               </div>
             </div>
 
@@ -316,7 +376,7 @@ export default function Profile() {
                 Thành tích nổi bật
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {mockUser.achievements.map((a) => (
+                {(user.achievements || mockUser.achievements).map((a) => (
                   <div key={a.id} style={{ ...styles.badge }}>
                     {a.title}
                   </div>
@@ -327,6 +387,64 @@ export default function Profile() {
         </div>
 
         <div>
+          <div style={styles.section}>
+            <div style={styles.sectionTitle}>Đổi mật khẩu</div>
+            {pwdMessage && (
+              <div style={{
+                color: pwdMessage.toLowerCase().includes("lỗi") || pwdMessage.toLowerCase().includes("không") ? '#ff8080' : '#9fe59f',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                padding: 8, borderRadius: 8, marginBottom: 10
+              }}>{pwdMessage}</div>
+            )}
+            <form onSubmit={handleChangePassword} style={{ display: "grid", gap: 10 }}>
+              <input
+                type="password"
+                placeholder="Mật khẩu hiện tại"
+                value={pwd.currentPassword}
+                onChange={(e) => setPwd({ ...pwd, currentPassword: e.target.value })}
+                required
+                disabled={pwdLoading}
+                style={{ padding: 10, borderRadius: 8, background: "#0f1417", color: "#e6eef6", border: "1px solid rgba(255,255,255,0.06)" }}
+              />
+              <input
+                type="password"
+                placeholder="Mật khẩu mới (≥ 6 ký tự)"
+                value={pwd.newPassword}
+                onChange={(e) => setPwd({ ...pwd, newPassword: e.target.value })}
+                minLength={6}
+                required
+                disabled={pwdLoading}
+                style={{ padding: 10, borderRadius: 8, background: "#0f1417", color: "#e6eef6", border: "1px solid rgba(255,255,255,0.06)" }}
+              />
+              <input
+                type="password"
+                placeholder="Xác nhận mật khẩu mới"
+                value={pwd.confirmPassword}
+                onChange={(e) => setPwd({ ...pwd, confirmPassword: e.target.value })}
+                minLength={6}
+                required
+                disabled={pwdLoading}
+                style={{ padding: 10, borderRadius: 8, background: "#0f1417", color: "#e6eef6", border: "1px solid rgba(255,255,255,0.06)" }}
+              />
+              <button
+                type="submit"
+                disabled={pwdLoading}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  background: "linear-gradient(135deg,#ff6b35,#ffd700)",
+                  color: "#000",
+                  fontWeight: 800,
+                  border: "none",
+                  cursor: pwdLoading ? "not-allowed" : "pointer",
+                  opacity: pwdLoading ? 0.7 : 1,
+                }}
+              >
+                {pwdLoading ? "Đang đổi..." : "Cập nhật mật khẩu"}
+              </button>
+            </form>
+          </div>
           <div style={styles.section}>
             <div style={styles.sectionTitle}>Bộ sưu tập thẻ</div>
             <div style={styles.collectionGrid}>

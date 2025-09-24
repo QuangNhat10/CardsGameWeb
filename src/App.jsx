@@ -5,12 +5,15 @@ const Home = React.lazy(() => import("./pages/Home/index.jsx"));
 const FusionGuide = React.lazy(() => import("./pages/FusionGuide/index.jsx"));
 const Login = React.lazy(() => import("./pages/Login/index.jsx"));
 const Register = React.lazy(() => import("./pages/Register/index.jsx"));
+const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword/index.jsx"));
+const ResetPassword = React.lazy(() => import("./pages/ResetPassword/index.jsx"));
 const ShopGamePage = React.lazy(() => import("./pages/ShopGame/index.jsx"));
 const NotFound = React.lazy(() => import("./pages/NotFound.jsx"));
 const Collection = React.lazy(() => import("./pages/Collection/index.jsx"));
 const ContactPage = React.lazy(() => import("./pages/ContactPage/index.jsx"));
 const APITest = React.lazy(() => import("./pages/APITest/index.jsx"));
 const VerifyOTP = React.lazy(() => import("./pages/VerifyOTP/index.jsx"));
+const Profile = React.lazy(() => import("./pages/Profile.jsx"));
 // Loading component
 const LoadingSpinner = () => (
   <div className="loading-container">
@@ -35,7 +38,10 @@ export default function App() {
           <Route path="/collection" element={<Collection />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/api-test" element={<APITest />} />
           <Route path="*" element={<NotFound />} />

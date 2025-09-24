@@ -1,11 +1,35 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./Header.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const featuresRef = useRef(null);
   const gameModesRef = useRef(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    try {
+      const userString = localStorage.getItem("user");
+      if (userString) {
+        setCurrentUser(JSON.parse(userString));
+      } else {
+        setCurrentUser(null);
+      }
+    } catch (_) {
+      setCurrentUser(null);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setCurrentUser(null);
+    setIsUserMenuOpen(false);
+    navigate("/login");
+  };
 
   const open = (ref) => {
     if (!ref?.current) return;
@@ -286,8 +310,37 @@ export default function Header() {
           </nav>
 
           <div className="header__actions">
-            <button className="btn btn--outline">Login</button>
-            <button className="btn btn--primary">Play Now</button>
+            {currentUser ? (
+              <div className="user-menu">
+                <button
+                  className="user-avatar"
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  aria-haspopup="true"
+                  aria-expanded={isUserMenuOpen}
+                  title={currentUser.username || currentUser.email}
+                >
+                  <span className="user-initial">
+                    {(currentUser.username || currentUser.email || "U").charAt(0).toUpperCase()}
+                  </span>
+                  <span className="nav__arrow">▼</span>
+                </button>
+                {isUserMenuOpen && (
+                  <div className="user-dropdown" role="menu">
+                    <Link to="/profile" className="user-dropdown__item" onClick={() => setIsUserMenuOpen(false)}>
+                      Hồ sơ
+                    </Link>
+                    <button className="user-dropdown__item user-dropdown__logout" onClick={handleLogout}>
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn--outline">Login</Link>
+                <Link to="/register" className="btn btn--primary">Play Now</Link>
+              </>
+            )}
             <button
               className="header__menu-toggle"
               onClick={() => setIsMenuOpen(!isMenuOpen)}

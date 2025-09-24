@@ -76,6 +76,7 @@ const mapCards = [
 ];
 
 export default function Home() {
+  const isLoggedIn = !!localStorage.getItem("token");
   return (
     <>
       <Header />
@@ -91,9 +92,11 @@ export default function Home() {
             <div className="home__cta-row">
               <button className="home__cta primary">🎮 Download</button>
               <button className="home__cta ghost">🃏 Choose Your Deck</button>
-              <Link to="/login" className="home__cta ghost">
-                🔐 Login
-              </Link>
+              {!isLoggedIn && (
+                <Link to="/login" className="home__cta ghost">
+                  🔐 Login
+                </Link>
+              )}
             </div>
           </div>
           <div className="floating-card-2">🃏</div>

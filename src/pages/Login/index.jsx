@@ -57,7 +57,17 @@ export default function Login() {
 
   return (
     <div className="auth-bg">
-      <div className="auth-brand auth-brand--outside">
+      <div
+        className="auth-brand auth-brand--outside"
+        onClick={() => {
+          // trở về trang home ở trạng thái chưa đăng nhập
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/");
+        }}
+        style={{ cursor: 'pointer' }}
+        title="Về trang chủ"
+      >
         <div className="auth-logo auth-logo--xl">🃏</div>
         <div className="auth-name auth-name--xl">Arena of Cards</div>
       </div>
@@ -129,6 +139,10 @@ export default function Login() {
         >
           {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
         </button>
+
+        <div className="auth-alt" style={{ marginTop: 8 }}>
+          <Link to="/forgot-password">Quên mật khẩu?</Link>
+        </div>
 
         <div className="auth-alt">
           Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
