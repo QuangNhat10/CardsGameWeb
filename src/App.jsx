@@ -34,6 +34,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/fusion-guide" element={<FusionGuide />} />
+          <Route path="/fusionguide" element={<FusionGuide />} />
           <Route path="/shop-game" element={<ShopGamePage />} />
           <Route path="/collection" element={<Collection />} />
           <Route path="/login" element={<Login />} />
