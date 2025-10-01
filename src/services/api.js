@@ -1,4 +1,23 @@
-export const URL = (import.meta?.env?.VITE_API_URL) || "https://gamethebaiteam3-backend.onrender.com";
+// Robust API base URL selection to avoid localhost in production
+const envApiUrl = (import.meta?.env?.VITE_API_URL);
+const isBrowser = typeof window !== 'undefined';
+const isLocalHost = isBrowser && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === '0.0.0.0'
+);
+// If running locally, allow localhost env value; otherwise, force a non-localhost URL
+export const URL = (() => {
+    if (isLocalHost) {
+        return envApiUrl || 'http://localhost:5000';
+    }
+    // In production: prefer env var if it is NOT pointing to localhost; else fallback to Render URL
+    if (envApiUrl && !/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(envApiUrl)) {
+        return envApiUrl;
+    }
+    return 'https://gamethebaiteam3-backend.onrender.com';
+})();
+try { console.log('[api] Base URL =', URL); } catch {}
 
 // API endpoints - use real backend paths
 export const API_ENDPOINTS = {
