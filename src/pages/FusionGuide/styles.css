@@ -25,13 +25,15 @@
 }
 
 .btn-add,
-.btn-merge {
+.btn-merge,
+.btn-toggle {
   border: none;
   border-radius: 6px;
   padding: 8px 16px;
   font-weight: bold;
   font-size: 16px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .btn-add {
@@ -51,6 +53,22 @@
 
 .btn-merge-disabled {
   cursor: not-allowed;
+}
+
+.btn-toggle {
+  background: #666;
+  color: #fff;
+}
+
+.btn-toggle:hover {
+  background: #777;
+  transform: translateY(-1px);
+}
+
+.btn-toggle.active {
+  background: #4caf50;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
 
 /* Flow area chiếm hết phần còn lại */
@@ -213,4 +231,157 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   max-height: 300px;
   overflow: hidden;
+}
+
+/* Dropdown Container */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.card-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  min-width: 300px;
+  max-width: 400px;
+  max-height: 500px;
+  overflow: hidden;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: rgba(76, 175, 80, 0.2);
+  border-bottom: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.dropdown-header h3 {
+  margin: 0;
+  color: #4caf50;
+  font-size: 16px;
+}
+
+.close-btn {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dropdown-content {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.no-cards {
+  padding: 20px;
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}
+
+.cards-list {
+  padding: 10px;
+}
+
+.card-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.card-item:hover {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: rgba(76, 175, 80, 0.3);
+  transform: translateX(5px);
+}
+
+.card-thumbnail {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  margin-right: 12px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-info {
+  flex: 1;
+}
+
+.card-name {
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.card-type {
+  color: #888;
+  font-size: 12px;
+}
+
+/* Genealogy Modal */
+.genealogy-modal {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Custom scrollbar for dropdown */
+.dropdown-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+  background: rgba(76, 175, 80, 0.5);
+  border-radius: 3px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 175, 80, 0.7);
 }

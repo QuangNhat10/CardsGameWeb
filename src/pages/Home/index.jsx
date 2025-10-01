@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import "./styles.css";
@@ -76,7 +76,29 @@ const mapCards = [
 ];
 
 export default function Home() {
-  const isLoggedIn = !!localStorage.getItem("token");
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("accessToken"));
+
+  useEffect(() => {
+    // Lắng nghe thay đổi trong localStorage
+    const checkLoginStatus = () => {
+      const hasToken = !!localStorage.getItem("accessToken");
+      setIsLoggedIn(hasToken);
+    };
+
+    // Kiểm tra ngay lập tức
+    checkLoginStatus();
+
+    // Lắng nghe sự kiện storage change (khi tab khác thay đổi localStorage)
+    window.addEventListener('storage', checkLoginStatus);
+
+    // Lắng nghe sự kiện custom khi login thành công
+    window.addEventListener('loginSuccess', checkLoginStatus);
+
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+      window.removeEventListener('loginSuccess', checkLoginStatus);
+    };
+  }, []);
   return (
     <>
       <Header />

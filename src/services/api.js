@@ -1,4 +1,4 @@
-export const URL = "https://gamethebaiteam3-backend.onrender.com";
+export const URL = (import.meta?.env?.VITE_API_URL) || "https://gamethebaiteam3-backend.onrender.com";
 
 // API endpoints - use real backend paths
 export const API_ENDPOINTS = {
@@ -8,37 +8,270 @@ export const API_ENDPOINTS = {
     AUTH: '/auth'
 };
 
-// API service class
+// API service class with refresh token support
 class ApiService {
     constructor() {
         this.baseURL = URL;
+        this.isRefreshing = false;
+        this.failedQueue = [];
     }
 
-    // Generic fetch method
-    async fetchData(endpoint, options = {}) {
+    // Token management
+    getAccessToken() {
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
+            return localStorage.getItem('accessToken');
+        } catch (error) {
+            console.warn('Failed to get access token from localStorage:', error);
+            return null;
+        }
+    }
+
+    getRefreshToken() {
+        try {
+            return localStorage.getItem('refreshToken');
+        } catch (error) {
+            console.warn('Failed to get refresh token from localStorage:', error);
+            return null;
+        }
+    }
+
+    setTokens(accessToken, refreshToken) {
+        try {
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+            console.log('Tokens saved successfully');
+        } catch (error) {
+            console.error('Failed to save tokens:', error);
+        }
+    }
+
+    clearTokens() {
+        try {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            console.log('Tokens cleared');
+        } catch (error) {
+            console.error('Failed to clear tokens:', error);
+        }
+    }
+
+    // Clear tokens and redirect to login
+    clearTokensAndRedirect() {
+        this.clearTokens();
+        window.location.href = '/login';
+    }
+
+    // Refresh access token using refresh token
+    async refreshAccessToken() {
+        if (this.isRefreshing) {
+            // If already refreshing, wait for it to complete
+            return new Promise((resolve, reject) => {
+                this.failedQueue.push({ resolve, reject });
+            });
+        }
+
+        this.isRefreshing = true;
+        const refreshToken = this.getRefreshToken();
+
+        if (!refreshToken) {
+            this.clearTokensAndRedirect();
+            return Promise.reject(new Error('No refresh token available'));
+        }
+
+        try {
+            console.log('Refreshing access token...');
+            const response = await fetch(`${this.baseURL}${API_ENDPOINTS.AUTH}/refresh`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...options.headers
                 },
-                ...options
+                body: JSON.stringify({ refreshToken })
             });
+
+            if (!response.ok) {
+                throw new Error(`Refresh failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Save new tokens
+            this.setTokens(data.accessToken, data.refreshToken);
+
+            console.log('Access token refreshed successfully');
+
+            // Process failed queue
+            this.processQueue(null, data.accessToken);
+
+            return data.accessToken;
+        } catch (error) {
+            console.error('Failed to refresh access token:', error);
+            this.processQueue(error, null);
+            this.clearTokensAndRedirect();
+            throw error;
+        } finally {
+            this.isRefreshing = false;
+        }
+    }
+
+    // Process failed requests queue
+    processQueue(error, token = null) {
+        this.failedQueue.forEach(({ resolve, reject }) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(token);
+            }
+        });
+
+        this.failedQueue = [];
+    }
+
+    // Generic fetch method with automatic token refresh
+    async fetchData(endpoint, options = {}) {
+        const makeRequest = async (accessToken) => {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            // Add authorization header if token exists
+            if (accessToken) {
+                headers['Authorization'] = accessToken.startsWith('Bearer ') ? accessToken : `Bearer ${accessToken}`;
+            }
+
+            const response = await fetch(`${this.baseURL}${endpoint}`, {
+                ...options,
+                headers
+            });
+
+            // Handle token expiration
+            if (response.status === 401) {
+                const refreshToken = this.getRefreshToken();
+
+                if (refreshToken && !this.isRefreshing) {
+                    console.log('Access token expired, attempting refresh...');
+
+                    try {
+                        const newAccessToken = await this.refreshAccessToken();
+
+                        // Retry the original request with new token
+                        headers['Authorization'] = newAccessToken.startsWith('Bearer ') ? newAccessToken : `Bearer ${newAccessToken}`;
+
+                        const retryResponse = await fetch(`${this.baseURL}${endpoint}`, {
+                            ...options,
+                            headers
+                        });
+
+                        if (!retryResponse.ok) {
+                            throw new Error(`HTTP error! status: ${retryResponse.status}`);
+                        }
+
+                        return await retryResponse.json();
+                    } catch (refreshError) {
+                        console.error('Token refresh failed:', refreshError);
+                        this.clearTokensAndRedirect();
+                        throw new Error('Token refresh failed');
+                    }
+                } else {
+                    console.warn('No refresh token available, redirecting to login');
+                    this.clearTokensAndRedirect();
+                    throw new Error('Token expired and no refresh token available');
+                }
+            }
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             return await response.json();
+        };
+
+        try {
+            const accessToken = this.getAccessToken();
+            return await makeRequest(accessToken);
         } catch (error) {
             console.error('API Error:', error);
             throw error;
         }
     }
 
+    // Authentication methods
+    async login(credentials) {
+        try {
+            const response = await fetch(`${this.baseURL}${API_ENDPOINTS.AUTH}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(credentials)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Login failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Save both tokens
+            this.setTokens(data.accessToken, data.refreshToken);
+
+            return data;
+        } catch (error) {
+            console.error('Login error:', error);
+            throw error;
+        }
+    }
+
+    async register(userData) {
+        try {
+            const response = await fetch(`${this.baseURL}${API_ENDPOINTS.AUTH}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Registration failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Save both tokens if registration includes auto-login
+            if (data.accessToken && data.refreshToken) {
+                this.setTokens(data.accessToken, data.refreshToken);
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Registration error:', error);
+            throw error;
+        }
+    }
+
+    async logout() {
+        try {
+            const refreshToken = this.getRefreshToken();
+
+            if (refreshToken) {
+                await fetch(`${this.baseURL}${API_ENDPOINTS.AUTH}/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ refreshToken })
+                });
+            }
+        } catch (error) {
+            console.warn('Logout request failed:', error);
+        } finally {
+            this.clearTokens();
+        }
+    }
+
     // Card-related API calls
     async getAllCards() {
-        // Load only from real API; let caller handle errors
         return this.fetchData(API_ENDPOINTS.CARDS);
     }
 
@@ -68,7 +301,6 @@ class ApiService {
 
     // Fusion-related API calls
     async mergeCards(mergeData) {
-        // Swagger: POST /cards/merge
         return this.fetchData('/cards/merge', {
             method: 'POST',
             body: JSON.stringify(mergeData)
@@ -76,13 +308,11 @@ class ApiService {
     }
 
     async performFusion(fusionData) {
-        // Try multiple likely endpoints to be compatible with BE routing
         const candidatePaths = [
             API_ENDPOINTS.FUSION,
             '/cards/fusion',
             '/fusion/create',
             '/ai/fusion',
-            // Swagger alternatives
             '/cards/fuse',
             '/cards/merge',
             '/fusions',
@@ -120,7 +350,6 @@ class ApiService {
                 lastError = err;
             }
         }
-        // Graceful fallback
         console.warn('Fusion history endpoints not found, returning empty list');
         return [];
     }
@@ -140,7 +369,6 @@ class ApiService {
                 lastError = err;
             }
         }
-        // Graceful fallback
         console.warn('Fusion recipes endpoints not found, returning empty list');
         return [];
     }

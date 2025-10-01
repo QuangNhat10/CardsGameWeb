@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { URL } from "../../services/api";
+import apiService from "../../services/api";
+import socketService from "../../services/socket";
 import "./styles.css";
 
 export default function Login() {
@@ -26,30 +27,49 @@ export default function Login() {
     setMessage("");
 
     try {
-      const res = await fetch(`${URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      // Sử dụng API service mới với refresh token
+      const data = await apiService.login(formData);
 
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("Đăng nhập thành công!");
-        localStorage.setItem("token", data.token); // lưu token
-        if (data.user) {
-          localStorage.setItem("user", JSON.stringify(data.user));
-        }
-        setTimeout(() => {
-          navigate("/"); // Chuyển hướng sau 1 giây
-        }, 1000);
-      } else {
-        setMessage(data.message || "Đăng nhập thất bại");
+      setMessage("Đăng nhập thành công!");
+
+      // Tokens đã được lưu tự động trong apiService.login()
+      console.log('[login] tokens saved automatically');
+
+      // Dispatch event để thông báo login thành công
+      window.dispatchEvent(new CustomEvent('loginSuccess'));
+
+      // Lưu thông tin user nếu có
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
       }
+
+      // Kết nối socket sau khi đã lưu token
+      try {
+        console.log('[socket] connect() called after successful login');
+        const socket = socketService.connect();
+
+        // Debug socket status
+        setTimeout(() => {
+          socketService.debugStatus();
+        }, 2000);
+      } catch (error) {
+        console.warn('Socket connection failed:', error);
+        // Try to connect without auth as fallback
+        try {
+          console.log('[socket] Trying fallback connection without auth');
+          socketService.connectWithoutAuth();
+        } catch (fallbackError) {
+          console.error('Fallback socket connection also failed:', fallbackError);
+        }
+      }
+
+      setTimeout(() => {
+        navigate("/"); // Chuyển hướng sau 1 giây
+      }, 1000);
+
     } catch (err) {
       console.error("Login error:", err);
-      setMessage("Lỗi: " + err.message);
+      setMessage("Lỗi: " + (err.message || "Đăng nhập thất bại"));
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +81,7 @@ export default function Login() {
         className="auth-brand auth-brand--outside"
         onClick={() => {
           // trở về trang home ở trạng thái chưa đăng nhập
-          localStorage.removeItem("token");
+          apiService.clearTokens();
           localStorage.removeItem("user");
           navigate("/");
         }}

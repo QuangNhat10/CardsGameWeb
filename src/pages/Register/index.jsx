@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { URL } from "../../services/api";
+import apiService from "../../services/api";
 import "./styles.css";
 
 export default function Register() {
@@ -33,27 +33,27 @@ export default function Register() {
     }
 
     try {
-      const res = await fetch(`${URL}/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      // Sử dụng API service mới với refresh token
+      const data = await apiService.register(formData);
 
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("Đăng ký thành công! Vui lòng nhập mã OTP gửi tới email.");
-        setTimeout(() => {
-          const emailParam = encodeURIComponent(formData.email);
-          navigate(`/verify-otp?email=${emailParam}`);
-        }, 1200);
-      } else {
-        setMessage(data.message || "Đăng ký thất bại");
+      setMessage("Đăng ký thành công! Vui lòng nhập mã OTP gửi tới email.");
+
+      // Tokens đã được lưu tự động trong apiService.register() nếu có auto-login
+      console.log('[register] tokens saved automatically if available');
+
+      // Lưu thông tin user nếu có
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
       }
+
+      setTimeout(() => {
+        const emailParam = encodeURIComponent(formData.email);
+        navigate(`/verify-otp?email=${emailParam}`);
+      }, 1200);
+
     } catch (err) {
       console.error("Register error:", err);
-      setMessage("Lỗi: " + err.message);
+      setMessage("Lỗi: " + (err.message || "Đăng ký thất bại"));
     } finally {
       setIsLoading(false);
     }
