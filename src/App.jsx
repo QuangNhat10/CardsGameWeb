@@ -13,7 +13,7 @@ const Collection = React.lazy(() => import("./pages/Collection/index.jsx"));
 const ContactPage = React.lazy(() => import("./pages/ContactPage/index.jsx"));
 const APITest = React.lazy(() => import("./pages/APITest/index.jsx"));
 const VerifyOTP = React.lazy(() => import("./pages/VerifyOTP/index.jsx"));
-import Profile from "./pages/Profile.jsx";
+const Profile = React.lazy(() => import("./pages/Profile/index.jsx"));
 // Loading component
 const LoadingSpinner = () => (
   <div className="loading-container">
