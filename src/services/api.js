@@ -6,18 +6,10 @@ const isLocalHost = isBrowser && (
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname === '0.0.0.0'
 );
-// If running locally, allow localhost env value; otherwise, force a non-localhost URL
-export const URL = (() => {
-    if (isLocalHost) {
-        return envApiUrl || 'http://localhost:5000';
-    }
-    // In production: prefer env var if it is NOT pointing to localhost; else fallback to Render URL
-    if (envApiUrl && !/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(envApiUrl)) {
-        return envApiUrl;
-    }
-    return 'https://gamethebaiteam3-backend.onrender.com';
-})();
-try { console.log('[api] Base URL =', URL); } catch {}
+
+// Force production backend URL for now
+export const URL = 'https://gamethebaiteam3-backend.onrender.com';
+try { console.log('[api] Base URL =', URL); } catch { /* ignore */ }
 
 // API endpoints - use real backend paths
 export const API_ENDPOINTS = {
@@ -361,12 +353,12 @@ class ApiService {
             '/fusions/history',
             '/cards/fusion/history'
         ];
-        let lastError;
+        let _lastError;
         for (const path of candidatePaths) {
             try {
                 return await this.fetchData(path);
             } catch (err) {
-                lastError = err;
+                _lastError = err;
             }
         }
         console.warn('Fusion history endpoints not found, returning empty list');
@@ -380,12 +372,12 @@ class ApiService {
             '/cards/recipes',
             '/api/cards/recipes'
         ];
-        let lastError;
+        let _lastError;
         for (const path of candidatePaths) {
             try {
                 return await this.fetchData(path);
             } catch (err) {
-                lastError = err;
+                _lastError = err;
             }
         }
         console.warn('Fusion recipes endpoints not found, returning empty list');
