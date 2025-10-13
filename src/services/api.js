@@ -9,7 +9,8 @@ const isLocalHost = isBrowser && (
 // If running locally, allow localhost env value; otherwise, force a non-localhost URL
 export const URL = (() => {
     if (isLocalHost) {
-        return envApiUrl || 'http://localhost:5000';
+        // In local dev, allow localhost if explicitly set; else prefer Render to reduce surprises
+        return envApiUrl || 'https://gamethebaiteam3-backend.onrender.com';
     }
     // In production: prefer env var if it is NOT pointing to localhost; else fallback to Render URL
     if (envApiUrl && !/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(envApiUrl)) {
@@ -17,7 +18,7 @@ export const URL = (() => {
     }
     return 'https://gamethebaiteam3-backend.onrender.com';
 })();
-try { console.log('[api] Base URL =', URL); } catch {}
+try { console.log('[api] Base URL =', URL); } catch { }
 
 // API endpoints - use real backend paths
 export const API_ENDPOINTS = {

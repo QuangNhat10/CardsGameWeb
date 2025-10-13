@@ -302,6 +302,9 @@ export default function Header() {
             <Link to="/shop-game" className="nav__link">
               Shop
             </Link>
+            <Link to="/fusion" className="nav__link">
+              Fusion
+            </Link>
             <a href="/fusion-guide" className="nav__link">
               Fusion Guide
             </a>

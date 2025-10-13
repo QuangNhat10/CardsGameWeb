@@ -1,6 +1,18 @@
 import { io } from 'socket.io-client';
 import { URL } from './api.js';
 
+// Ensure we never connect to localhost in production builds
+const isBrowser = typeof window !== 'undefined';
+const isLocalHost = isBrowser && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === '0.0.0.0'
+);
+const RENDER_URL = 'https://gamethebaiteam3-backend.onrender.com';
+const EFFECTIVE_URL = (!isLocalHost && /localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(String(URL)))
+    ? RENDER_URL
+    : URL;
+
 class SocketService {
     constructor() {
         this.socket = null;
@@ -50,7 +62,7 @@ class SocketService {
         console.log('[socket] Connection attempt:', {
             hasToken: !!accessToken,
             tokenLength: accessToken ? accessToken.length : 0,
-            url: URL
+            url: EFFECTIVE_URL
         });
 
         // If no token, try to connect without authentication
@@ -70,10 +82,10 @@ class SocketService {
         // Debug nhẹ để thấy payload auth (không log token thật)
         try {
             const masked = accessToken ? `${String(accessToken).slice(0, 6)}...` : 'none';
-            console.log('[socket] connecting to', URL, 'auth.accessToken=', masked);
+            console.log('[socket] connecting to', EFFECTIVE_URL, 'auth.accessToken=', masked);
         } catch { }
 
-        this.socket = io(URL, {
+        this.socket = io(EFFECTIVE_URL, {
             transports: ['websocket'],
             timeout: 20000,
             forceNew: true,
@@ -170,9 +182,9 @@ class SocketService {
 
     // Connect without authentication (for public features)
     connectWithoutAuth() {
-        console.log('[socket] 🔓 Connecting without authentication to:', URL);
+        console.log('[socket] 🔓 Connecting without authentication to:', EFFECTIVE_URL);
 
-        this.socket = io(URL, {
+        this.socket = io(EFFECTIVE_URL, {
             transports: ['websocket'],
             timeout: 20000,
             forceNew: true,

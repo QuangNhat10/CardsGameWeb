@@ -144,7 +144,7 @@ export default function Login() {
               opacity: isLoading ? 0.5 : 1
             }}
           >
-            {showPassword ? "🙈" : "👁️"}
+            {showPassword ? "" : ""}
           </span>
         </div>
 

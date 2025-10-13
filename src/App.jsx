@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const Home = React.lazy(() => import("./pages/Home/index.jsx"));
 const FusionGuide = React.lazy(() => import("./pages/FusionGuide/index.jsx"));
+const Fusion = React.lazy(() => import("./pages/Fusion/index.jsx"));
 const Login = React.lazy(() => import("./pages/Login/index.jsx"));
 const Register = React.lazy(() => import("./pages/Register/index.jsx"));
 const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword/index.jsx"));
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/fusion-guide" element={<FusionGuide />} />
           <Route path="/fusionguide" element={<FusionGuide />} />
+          <Route path="/fusion" element={<Fusion />} />
           <Route path="/shop-game" element={<ShopGamePage />} />
           <Route path="/collection" element={<Collection />} />
           <Route path="/login" element={<Login />} />

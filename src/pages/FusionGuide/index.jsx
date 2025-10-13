@@ -977,7 +977,7 @@ export default function Reviews() {
         >
           {loading ? 'Fusing...' : 'Ghép Card'}
         </button>
-
+        
         <div className="dropdown-container">
           <button
             onClick={() => setShowCardDropdown(!showCardDropdown)}
