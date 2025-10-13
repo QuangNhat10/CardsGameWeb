@@ -362,12 +362,12 @@ class ApiService {
             '/fusions/history',
             '/cards/fusion/history'
         ];
-        let lastError;
+        let _lastError;
         for (const path of candidatePaths) {
             try {
                 return await this.fetchData(path);
             } catch (err) {
-                lastError = err;
+                _lastError = err;
             }
         }
         console.warn('Fusion history endpoints not found, returning empty list');
@@ -381,12 +381,12 @@ class ApiService {
             '/cards/recipes',
             '/api/cards/recipes'
         ];
-        let lastError;
+        let _lastError;
         for (const path of candidatePaths) {
             try {
                 return await this.fetchData(path);
             } catch (err) {
-                lastError = err;
+                _lastError = err;
             }
         }
         console.warn('Fusion recipes endpoints not found, returning empty list');
